@@ -1,7 +1,8 @@
-lvgl/lvgl@^7.11
-esphome/AsyncTCP-esphome@^1.2.2
-fastled/FastLED@^3.6.0
-esphome/ESPAsyncWebServer-esphome@^2.1.0
-arduino-libraries/NTPClient@^3.2.1
-ayushsharma82/ElegantOTA@^3.1.0
 bodmer/TFT_eSPI@^2.5.41
+esphome/ESPAsyncWebServer-esphome@^2.1.0
+fastled/FastLED@^3.6.0
+ayushsharma82/ElegantOTA@^3.1.0
+esphome/AsyncTCP-esphome@^1.2.2
+lvgl/lvgl@^7.11
+bblanchon/ArduinoJson@^6.21.4
+arduino-libraries/NTPClient@^3.2.1

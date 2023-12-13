@@ -10,6 +10,7 @@
             "includePath": [
                 "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/include",
                 "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/src",
+                "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/ArduinoJson/src",
                 "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/FastLED/src",
                 "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/ElegantOTA/src",
                 "C:/Users/PMojo/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
@@ -248,6 +249,7 @@
                 "path": [
                     "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/include",
                     "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/src",
+                    "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/ArduinoJson/src",
                     "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/FastLED/src",
                     "C:/Users/PMojo/OneDrive/Documents/PlatformIO/Projects/TreeLEDs/.pio/libdeps/esp32dev/ElegantOTA/src",
                     "C:/Users/PMojo/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",

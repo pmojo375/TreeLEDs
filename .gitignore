@@ -5,7 +5,4 @@
 .vscode/ipch
 .vscode/settings.json
 .gitignore
-.pio/build/esp32dev/idedata.json
-.pio/build/project.checksum
-.pio/libdeps/esp32dev/integrity.dat
 .vscode/c_cpp_properties.json
