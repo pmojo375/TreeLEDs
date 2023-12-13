@@ -5,6 +5,7 @@
 #include <lvgl.h>
 #include <FastLED.h>
 #include <TFT_eSPI.h>
+#include <Arduino.h>
 
 // Declare screens
 extern lv_obj_t *main_screen;
@@ -14,20 +15,20 @@ extern lv_obj_t *color3_screen;
 extern lv_obj_t *color4_screen;
 extern lv_obj_t *inc_gHue_screen;
 extern lv_obj_t *brightness_screen;
-extern lv_obj_t *speed_screen;
-extern lv_obj_t *variability_screen;
+extern lv_obj_t *fps_screen;
+extern lv_obj_t *fps_variability_screen;
 extern lv_obj_t *palette_screen;
 extern lv_obj_t *mode_screen;
 extern lv_obj_t *fade_rate_screen;
 
-extern CRGB mainColor;
-extern CRGB secondaryColor1;
-extern CRGB secondaryColor2;
-extern CRGB secondaryColor3;
+extern CRGB color1;
+extern CRGB color2;
+extern CRGB color3;
+extern CRGB color4;
 
-extern int speedVariability;
-extern int speed;
-extern bool gHueState;
+extern int fpsVariability;
+extern int fps;
+extern bool inc_gHueState;
 extern uint8_t fadeAmount;
 extern uint8_t brightness;
 extern int mode;
@@ -44,9 +45,9 @@ void btn_event_handler_to_color4_screen(lv_obj_t *btn, lv_event_t event);
 
 void btn_event_handler_to_brightness_screen(lv_obj_t *btn, lv_event_t event);
 
-void btn_event_handler_to_speed_screen(lv_obj_t *btn, lv_event_t event);
+void btn_event_handler_to_fps_screen(lv_obj_t *btn, lv_event_t event);
 
-void btn_event_handler_to_variability_screen(lv_obj_t *btn, lv_event_t event);
+void btn_event_handler_to_fps_variability_screen(lv_obj_t *btn, lv_event_t event);
 
 void btn_event_handler_to_fade_rate_screen(lv_obj_t *btn, lv_event_t event);
 
@@ -54,7 +55,7 @@ void btn_event_handler_to_mode_screen(lv_obj_t *btn, lv_event_t event);
 
 void btn_event_handler_to_palette_screen(lv_obj_t *btn, lv_event_t event);
 
-void btn_event_handler_to_inc_GHue_screen(lv_obj_t *btn, lv_event_t event);
+void btn_event_handler_to_inc_gHue_screen(lv_obj_t *btn, lv_event_t event);
 
 void back_btn_event_handler(lv_obj_t *btn, lv_event_t event);
 
@@ -72,9 +73,9 @@ void create_brightness_screen();
 
 void create_inc_gHue_screen();
 
-void create_speed_screen();
+void create_fps_screen();
 
-void create_variability_screen();
+void create_fps_variability_screen();
 
 void create_palette_screen();
 
@@ -90,9 +91,9 @@ void color3_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event);
 
 void color4_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event);
 
-void variability_event_handler(lv_obj_t* slider, lv_event_t event);
+void fps_variability_event_handler(lv_obj_t* slider, lv_event_t event);
 
-void speed_event_handler(lv_obj_t* slider, lv_event_t event);
+void fps_event_handler(lv_obj_t* slider, lv_event_t event);
 
 void fade_rate_event_handler(lv_obj_t* slider, lv_event_t event);
 

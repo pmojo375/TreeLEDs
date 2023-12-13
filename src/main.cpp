@@ -8,6 +8,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
+#include <ArduinoJson.h>
 
 FASTLED_USING_NAMESPACE
 
@@ -16,25 +17,101 @@ static lv_disp_buf_t disp_buf;
 static lv_color_t buf[LV_HOR_RES_MAX * 10]; // LVGL display buffer
 
 // Default Colors
-CRGB mainColor = CRGB::DarkGreen;
-CRGB secondaryColor1 = CRGB::Red;
-CRGB secondaryColor2 = CRGB::Blue;
-CRGB secondaryColor3 = CRGB::WhiteSmoke;
+CRGB color1 = CRGB::DarkGreen;
+CRGB color2 = CRGB::Red;
+CRGB color3 = CRGB::Blue;
+CRGB color4 = CRGB::WhiteSmoke;
+
+CRGBPalette16 gCurrentPalette;
+CRGBPalette16 gTargetPalette;
+
+// setup millis timer
+unsigned long timer;
 
 // Defaults
-int speedVariability = 50;
-int speed = 10;
-bool gHueState = false;
+int fpsVariability = 50;
+int fps = 10;
+bool inc_gHueState = false;
 uint8_t fadeAmount = 16;
 uint8_t brightness = 255;
 int mode = 0;
 
-const uint8_t lineHeight = 16; // Height of a text line, adjust as needed
-const uint8_t maxLines = 15;   // Maximum number of lines that can fit on the screen
-String lineBuffer[15];         // Buffer to store lines of text
-
 const char *ssid = "ESP32";
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws"); // WebSocket endpoint
+
+void sendMessageToClients(const String& message) {
+    ws.textAll(message);
+}
+void onWsEvent(AsyncWebSocket *server, 
+               AsyncWebSocketClient *client, 
+               AwsEventType type, 
+               void *arg, 
+               uint8_t *data, 
+               size_t len) {
+
+    if (type == WS_EVT_CONNECT) {
+        Serial.println("WebSocket client connected");
+        Serial.println(CRGBToHex(color1));
+        sendMessageToClients("{\"type\":\"Mode\",\"value\":\"" + String(mode) + "\"}");
+        sendMessageToClients("{\"type\":\"Increment gHue\",\"value\":\"" + String(inc_gHueState) + "\"}");
+        sendMessageToClients("{\"type\":\"Palette\",\"value\":\"" + String(getPalette()) + "\"}");
+        sendMessageToClients("{\"type\":\"Color 1\",\"value\":\"" + CRGBToHex(color1) + "\"}");
+        sendMessageToClients("{\"type\":\"Color 2\",\"value\":\"" + CRGBToHex(color2) + "\"}");
+        sendMessageToClients("{\"type\":\"Color 3\",\"value\":\"" + CRGBToHex(color3) + "\"}");
+        sendMessageToClients("{\"type\":\"Color 4\",\"value\":\"" + CRGBToHex(color4) + "\"}");
+        sendMessageToClients("{\"type\":\"FPS\",\"value\":\"" + String(fps) + "\"}");
+        sendMessageToClients("{\"type\":\"Fade Amount\",\"value\":\"" + String(fadeAmount) + "\"}");
+        sendMessageToClients("{\"type\":\"Brightness\",\"value\":\"" + String(brightness) + "\"}");
+        sendMessageToClients("{\"type\":\"FPS Variability\",\"value\":\"" + String(fpsVariability) + "\"}");
+    } else if (type == WS_EVT_DISCONNECT) {
+        Serial.println("WebSocket client disconnected");
+    } else if (type == WS_EVT_DATA) {
+        // Handle incoming data
+        DynamicJsonDocument doc(1024); // Adjust size according to your needs
+        deserializeJson(doc, data); // Parse the JSON data
+
+        String type = doc["type"]; // Get the type of message
+        String value = doc["value"]; // Get the value
+
+        Serial.println("Type: " + type);
+        Serial.println("Value: " + value);
+
+        // Act based on the type of message
+        if (type == "Mode") {
+            mode = value.toInt();
+        } else if (type == "Increment gHue") {
+            if (value == "true") {
+                inc_gHueState = true;
+            } else {
+                inc_gHueState = false;
+            }
+        } else if (type == "Palette") {
+            setPalette(value.toInt());
+        } else if (type == "Color 1") {
+            color1 = hexToCRGB(value);
+        } else if (type == "Color 2") {
+            color2 = hexToCRGB(value);
+        } else if (type == "Color 3") {
+            color3 = hexToCRGB(value);
+        } else if (type == "Color 4") {
+            color4 = hexToCRGB(value);
+        } else if (type == "FPS") {
+            fps = value.toInt();
+        } else if (type == "Fade Amount") {
+            fadeAmount = value.toInt();
+        } else if (type == "Brightness") {
+            brightness = value.toInt();
+        } else if (type == "FPS Variability") {
+            fpsVariability = 66 - value.toInt();
+        }
+
+        // Optionally, send a response back to the client
+        String response = "{\"status\":\"OK\"}";
+        client->text(response);
+    }
+}
+
 
 void setup()
 {
@@ -77,8 +154,8 @@ void setup()
   create_brightness_screen();
   create_mode_screen();
   create_palette_screen();
-  create_speed_screen();
-  create_variability_screen();
+  create_fps_screen();
+  create_fps_variability_screen();
   create_inc_gHue_screen();
 
   // Load the main screen initially
@@ -99,110 +176,17 @@ void setup()
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send_P(200, "text/html", index_html); });
 
-  server.on("/setLEDFunction", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String func;
-        if (request->hasParam("function", true)) {
-            func = request->getParam("function", true)->value();
-            Serial.println("Mode = " + func);
-            mode = func.toInt();
-        } });
-
-  server.on("/toggleHueIncrement", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String incHueToggle;
-        if (request->hasParam("hueIncrement", true)) {
-            incHueToggle = request->getParam("hueIncrement", true)->value();
-            Serial.println("Hue incrementation toggled = " + incHueToggle);
-            gHueState = (incHueToggle == "true");
-        } });
-
-  server.on("/setColorPalette", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String palette;
-        if (request->hasParam("palette", true)) {
-            palette = request->getParam("palette", true)->value();
-            Serial.println("Palette = " + palette);
-            setPallette(palette.toInt());
-        } });
-
-  server.on("/setBaseColor", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String color;
-        if (request->hasParam("color", true)) {
-            color = request->getParam("color", true)->value();
-            Serial.println("Base Color = " + color);
-            mainColor = hexToCRGB(color);
-        } });
-
-  server.on("/setSecondaryColor1", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String color;
-        if (request->hasParam("color", true)) {
-            color = request->getParam("color", true)->value();
-            Serial.println("Secondary Color 1 = " + color);
-            secondaryColor1 = hexToCRGB(color);
-        } });
-  server.on("/setSecondaryColor2", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String color;
-        if (request->hasParam("color", true)) {
-            color = request->getParam("color", true)->value();
-            Serial.println("Secondary Color 2 = " + color);
-            secondaryColor2 = hexToCRGB(color);
-        } });
-
-  server.on("/setSecondaryColor3", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String color;
-        if (request->hasParam("color", true)) {
-            color = request->getParam("color", true)->value();
-            Serial.println("Secondary Color 3 = " + color);
-            secondaryColor3 = hexToCRGB(color);
-        } });
-
-  server.on("/setRate", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String rate;
-        if (request->hasParam("rate", true)) {
-            rate = request->getParam("rate", true)->value();
-            Serial.println("Update Rate = " + rate);
-            speed = rate.toInt();
-        } });
-
-  server.on("/setBrightness", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String brightness;
-        if (request->hasParam("brightness", true)) {
-            brightness = request->getParam("brightness", true)->value();
-            Serial.println("Brightness = " + brightness);
-            FastLED.setBrightness(brightness.toInt());
-            brightness = brightness.toInt();
-        } });
-
-  server.on("/setFadeAmount", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String _fadeAmount;
-        if (request->hasParam("fade_amount", true)) {
-            _fadeAmount = request->getParam("fade_amount", true)->value();
-            Serial.println("Fade Back To Base Amount = " + _fadeAmount);
-            fadeAmount = _fadeAmount.toInt();
-        } });
-
-  server.on("/setVariability", HTTP_POST, [](AsyncWebServerRequest *request)
-            {
-        String _speedVariability;
-        if (request->hasParam("variability", true)) {
-            _speedVariability = request->getParam("variability", true)->value();
-            Serial.println("Speed Variability = " + _speedVariability);
-            speedVariability = _speedVariability.toInt();
-        } });
-
   ElegantOTA.begin(&server);
+
+  ws.onEvent(onWsEvent);
+  server.addHandler(&ws);
+
   server.begin();
   Serial.println("HTTP server started");
 
-  Serial.println("Setup done");
+  timer = millis();
+  chooseNextColorPalette(gTargetPalette);
+  Serial.println("Setup Done");
 }
 
 void loop()
@@ -212,37 +196,50 @@ void loop()
 
   ElegantOTA.loop();
 
-  if (mode == 0)
-  {
-    glitter(secondaryColor1, secondaryColor2, secondaryColor3);
-    fadeTowardColor(leds, NUM_LEDS, mainColor, fadeAmount);
-  }
-  else if (mode == 1)
-  {
-    colorWaves(gHueState, brightness);
-  }
-  else if (mode == 2)
-  {
-    twinklingStars(mainColor);
-  }
-  else if (mode == 3)
-  {
-    candyCane(mainColor, secondaryColor1);
-  }
-  else if (mode == 4)
-  {
-    risingSparklesEffect();
-  }
-  else if (mode == 5)
-  {
-    // meteorRain(mainColor, 10, 64, true, 30);
+  if (mode == 5) {
+    EVERY_N_SECONDS( SECONDS_PER_PALETTE ) { 
+    chooseNextColorPalette( gTargetPalette ); 
+    }
+  
+    EVERY_N_MILLISECONDS( 10 ) {
+    nblendPaletteTowardPalette( gCurrentPalette, gTargetPalette, 12);
+    }
+
+    drawTwinkles(leds);
+  
+    FastLED.show();
+  } else if (timer - millis() > 1000/ (random16(fpsVariability) + fps) ) {
+
+    if (mode == 0)
+    {
+        glitter(color2, color3, color4);
+        fadeTowardColor(leds, NUM_LEDS, color1, fadeAmount);
+    }
+    else if (mode == 1)
+    {
+        colorWaves(inc_gHueState, brightness);
+    }
+    else if (mode == 2)
+    {
+        twinklingStars(color1);
+    }
+    else if (mode == 3)
+    {
+        candyCane(color1, color2);
+    }
+    else if (mode == 4)
+    {
+        risingSparklesEffect();
+    } else if (mode == 6) {
+        
+      random16_add_entropy(random());
+      Fire2012WithPalette(); // run simulation frame, using palette colors
+    }
+
+    // send the 'leds' array out to the actual LED strip
+    FastLED.show();
   }
 
-  // send the 'leds' array out to the actual LED strip
-  FastLED.show();
+  delay(20);
 
-  // insert a delay to keep the framerate modest
-  delay(1000 / (random16(speedVariability) + speed));
-
-  delay(5);
 }

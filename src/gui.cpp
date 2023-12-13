@@ -8,11 +8,23 @@ lv_obj_t *color3_screen = nullptr;
 lv_obj_t *color4_screen = nullptr;
 lv_obj_t *brightness_screen = nullptr;
 lv_obj_t *inc_gHue_screen = nullptr;
-lv_obj_t *speed_screen = nullptr;
-lv_obj_t *variability_screen = nullptr;
+lv_obj_t *fps_screen = nullptr;
+lv_obj_t *fps_variability_screen = nullptr;
 lv_obj_t *palette_screen = nullptr;
 lv_obj_t *mode_screen = nullptr;
 lv_obj_t *fade_rate_screen = nullptr;
+
+lv_obj_t* color1_picker;
+lv_obj_t* color2_picker;
+lv_obj_t* color3_picker;
+lv_obj_t* color4_picker;
+lv_obj_t* brightness_slider;
+lv_obj_t* fps_slider;
+lv_obj_t* fps_variability_slider;
+lv_obj_t* fade_rate_slider;
+lv_obj_t* inc_gHue_switch;
+lv_obj_t* palette_dropdown;
+lv_obj_t* mode_dropdown;
 
 // Button event handler to switch to a settings screen
 void btn_event_handler_to_color1_screen(lv_obj_t *btn, lv_event_t event)
@@ -20,6 +32,10 @@ void btn_event_handler_to_color1_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(color1_screen); // Load the respective settings screen
+
+        // set the color picker to the current color
+        lv_color_t color = lv_color_make(color1.r, color1.g, color1.b);
+        lv_cpicker_set_color(color1_picker, color);
     }
 }
 
@@ -29,6 +45,10 @@ void btn_event_handler_to_color2_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(color2_screen); // Load the respective settings screen
+        
+        // set the color picker to the current color
+        lv_color_t color = lv_color_make(color2.r, color2.g, color2.b);
+        lv_cpicker_set_color(color2_picker, color);
     }
 }
 
@@ -38,6 +58,10 @@ void btn_event_handler_to_color3_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(color3_screen); // Load the respective settings screen
+        
+        // set the color picker to the current color
+        lv_color_t color = lv_color_make(color3.r, color3.g, color3.b);
+        lv_cpicker_set_color(color3_picker, color);
     }
 }
 
@@ -47,6 +71,10 @@ void btn_event_handler_to_color4_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(color4_screen); // Load the respective settings screen
+        
+        // set the color picker to the current color
+        lv_color_t color = lv_color_make(color4.r, color4.g, color4.b);
+        lv_cpicker_set_color(color4_picker, color);
     }
 }
 
@@ -56,24 +84,33 @@ void btn_event_handler_to_brightness_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(brightness_screen); // Load the respective settings screen
+
+        // set the slider to the current brightness
+        lv_slider_set_value(brightness_slider, brightness, LV_ANIM_OFF);
     }
 }
 
 // Button event handler to switch to a settings screen
-void btn_event_handler_to_speed_screen(lv_obj_t *btn, lv_event_t event)
+void btn_event_handler_to_fps_screen(lv_obj_t *btn, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        lv_scr_load(speed_screen); // Load the respective settings screen
+        lv_scr_load(fps_screen); // Load the respective settings screen
+
+        // set the slider to the current speed
+        lv_slider_set_value(fps_slider, fps, LV_ANIM_OFF);
     }
 }
 
 // Button event handler to switch to a settings screen
-void btn_event_handler_to_variability_screen(lv_obj_t *btn, lv_event_t event)
+void btn_event_handler_to_fps_variability_screen(lv_obj_t *btn, lv_event_t event)
 {
     if (event == LV_EVENT_CLICKED)
     {
-        lv_scr_load(variability_screen); // Load the respective settings screen
+        lv_scr_load(fps_variability_screen); // Load the respective settings screen
+
+        // set the slider to the current fps variability
+        lv_slider_set_value(fps_variability_slider, fpsVariability, LV_ANIM_OFF);
     }
 }
 
@@ -83,6 +120,9 @@ void btn_event_handler_to_fade_rate_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(fade_rate_screen); // Load the respective settings screen
+
+        // set the slider to the current fade rate
+        lv_slider_set_value(fade_rate_slider, fadeAmount, LV_ANIM_OFF);
     }
 }
 
@@ -92,6 +132,9 @@ void btn_event_handler_to_palette_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(palette_screen); // Load the respective settings screen
+
+        // set the dropdown to the current palette
+        lv_dropdown_set_selected(palette_dropdown, getPalette());
     }
 }
 
@@ -101,6 +144,9 @@ void btn_event_handler_to_mode_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(mode_screen); // Load the respective settings screen
+
+        // set the dropdown to the current mode
+        lv_dropdown_set_selected(mode_dropdown, mode);
     }
 }
 
@@ -110,6 +156,13 @@ void btn_event_handler_to_inc_gHue_screen(lv_obj_t *btn, lv_event_t event)
     if (event == LV_EVENT_CLICKED)
     {
         lv_scr_load(inc_gHue_screen); // Load the respective settings screen
+
+        // set the switch to the current inc_gHue state
+        if (inc_gHueState) {
+            lv_switch_on(inc_gHue_switch, LV_ANIM_OFF);
+        } else {
+            lv_switch_off(inc_gHue_switch, LV_ANIM_OFF);
+        }
     }
 }
 
@@ -127,7 +180,19 @@ void color1_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event)
     if (event == LV_EVENT_VALUE_CHANGED)
     {
         lv_color_t color = lv_cpicker_get_color(cpicker);
-        mainColor = CRGB(color.ch.red, color.ch.green, color.ch.blue);
+
+        uint16_t color565 = color.full;
+
+        uint8_t red = (color565 >> 11) & 0x1F; // Extract 5 bits of red
+        uint8_t green = (color565 >> 5) & 0x3F; // Extract 6 bits of green
+        uint8_t blue = color565 & 0x1F; // Extract 5 bits of blue
+
+        // Scale up to 8-bit values
+        red = (red * 255) / 31;
+        green = (green * 255) / 63;
+        blue = (blue * 255) / 31;
+
+        color1 = CRGB(red, green, blue);
     }
 }
 
@@ -136,7 +201,19 @@ void color2_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event)
     if (event == LV_EVENT_VALUE_CHANGED)
     {
         lv_color_t color = lv_cpicker_get_color(cpicker);
-        secondaryColor1 = CRGB(color.ch.red, color.ch.green, color.ch.blue);
+        // Assuming lv_color_t color holds the color from LVGL
+        uint16_t color565 = color.full;
+
+        uint8_t red = (color565 >> 11) & 0x1F; // Extract 5 bits of red
+        uint8_t green = (color565 >> 5) & 0x3F; // Extract 6 bits of green
+        uint8_t blue = color565 & 0x1F; // Extract 5 bits of blue
+
+        // Scale up to 8-bit values
+        red = (red * 255) / 31;
+        green = (green * 255) / 63;
+        blue = (blue * 255) / 31;
+
+        color2 = CRGB(red, green, blue);
     }
 }
 
@@ -145,7 +222,19 @@ void color3_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event)
     if (event == LV_EVENT_VALUE_CHANGED)
     {
         lv_color_t color = lv_cpicker_get_color(cpicker);
-        secondaryColor2 = CRGB(color.ch.red, color.ch.green, color.ch.blue);
+
+        uint16_t color565 = color.full;
+
+        uint8_t red = (color565 >> 11) & 0x1F; // Extract 5 bits of red
+        uint8_t green = (color565 >> 5) & 0x3F; // Extract 6 bits of green
+        uint8_t blue = color565 & 0x1F; // Extract 5 bits of blue
+
+        // Scale up to 8-bit values
+        red = (red * 255) / 31;
+        green = (green * 255) / 63;
+        blue = (blue * 255) / 31;
+
+        color3 = CRGB(red, green, blue);
     }
 }
 
@@ -154,7 +243,19 @@ void color4_cpicker_event_handler(lv_obj_t *cpicker, lv_event_t event)
     if (event == LV_EVENT_VALUE_CHANGED)
     {
         lv_color_t color = lv_cpicker_get_color(cpicker);
-        secondaryColor3 = CRGB(color.ch.red, color.ch.green, color.ch.blue);
+
+        uint16_t color565 = color.full;
+
+        uint8_t red = (color565 >> 11) & 0x1F; // Extract 5 bits of red
+        uint8_t green = (color565 >> 5) & 0x3F; // Extract 6 bits of green
+        uint8_t blue = color565 & 0x1F; // Extract 5 bits of blue
+
+        // Scale up to 8-bit values
+        red = (red * 255) / 31;
+        green = (green * 255) / 63;
+        blue = (blue * 255) / 31;
+
+        color4 = CRGB(red, green, blue);
     }
 }
 
@@ -180,34 +281,34 @@ void fade_rate_event_handler(lv_obj_t* slider, lv_event_t event) {
     }
 }
 
-void speed_event_handler(lv_obj_t* slider, lv_event_t event) {
+void fps_event_handler(lv_obj_t* slider, lv_event_t event) {
     if(event == LV_EVENT_VALUE_CHANGED) {
         int value = lv_slider_get_value(slider);
         // Code to handle the slider value
         // For example, you can print the value to the serial console
         Serial.print("Slider Value: ");
         Serial.println(value);
-        speed = value;
+        fps = value;
     }
 }
 
-void variability_event_handler(lv_obj_t* slider, lv_event_t event) {
+void fps_variability_event_handler(lv_obj_t* slider, lv_event_t event) {
     if(event == LV_EVENT_VALUE_CHANGED) {
         int value = lv_slider_get_value(slider);
         // Code to handle the slider value
         // For example, you can print the value to the serial console
         Serial.print("Slider Value: ");
         Serial.println(value);
-        speedVariability = value;
+        fpsVariability = value;
     }
 }
 
 void inc_gHue_event_handler(lv_obj_t* sw, lv_event_t event) {
     if(event == LV_EVENT_VALUE_CHANGED) {
         if(lv_switch_get_state(sw)) {
-            gHueState = true;
+            inc_gHueState = true;
         } else {
-            gHueState = false;
+            inc_gHueState = false;
         }
     }
 }
@@ -217,7 +318,7 @@ void palette_event_handler(lv_obj_t* dd, lv_event_t event) {
         int selected_index = lv_dropdown_get_selected(dd); // Get the index of the selected option
         Serial.print("Selected Option Index: ");
         Serial.println(selected_index);
-        setPallette(selected_index);
+        setPalette(selected_index);
     }
 }
 
@@ -307,32 +408,33 @@ void create_main_screen()
 
     
 
-    lv_obj_t *btn_to_speed = lv_btn_create(main_screen, NULL);
-    lv_obj_set_event_cb(btn_to_speed, btn_event_handler_to_speed_screen);
+    lv_obj_t *btn_to_fps = lv_btn_create(main_screen, NULL);
+    lv_obj_set_event_cb(btn_to_fps, btn_event_handler_to_fps_screen);
 
     // Set the button size
-    lv_obj_set_size(btn_to_speed, 100, 40);
+    lv_obj_set_size(btn_to_fps, 100, 40);
 
     // Set the button position to next to the first button
-    lv_obj_align(btn_to_speed, btn_to_color3, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(btn_to_fps, btn_to_color3, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
 
     // Create label for the button (optional)
-    lv_obj_t *speed_btn_label = lv_label_create(btn_to_speed, NULL);
-    lv_label_set_text(speed_btn_label, "Speed"); // Repeat for other buttons
+    lv_obj_t *fps_btn_label = lv_label_create(btn_to_fps, NULL);
+    lv_label_set_text(fps_btn_label, "FPS"); // Repeat for other buttons
 
     
-    lv_obj_t *btn_to_variability = lv_btn_create(main_screen, NULL);
-    lv_obj_set_event_cb(btn_to_variability, btn_event_handler_to_variability_screen);
+    lv_obj_t *btn_to_fps_variability = lv_btn_create(main_screen, NULL);
+    lv_obj_set_event_cb(btn_to_fps_variability, btn_event_handler_to_fps_variability_screen);
 
     // Set the button size
-    lv_obj_set_size(btn_to_variability, 100, 40);
+    lv_obj_set_size(btn_to_fps_variability, 100, 40);
 
     // Set the button position to next to the first button
-    lv_obj_align(btn_to_variability, btn_to_color1, LV_ALIGN_OUT_TOP_MID, 0, 0);
+    lv_obj_align(btn_to_fps_variability, btn_to_color1, LV_ALIGN_OUT_TOP_MID, 0, 0);
 
     // Create label for the button (optional)
-    lv_obj_t *variability_btn_label = lv_label_create(btn_to_variability, NULL);
-    lv_label_set_text(variability_btn_label, "Variability"); // Repeat for other buttons
+    lv_obj_t *fps_variability_btn_label = lv_label_create(btn_to_fps_variability, NULL);
+    // set the text to a smaller font
+    lv_label_set_text(fps_variability_btn_label, "FPS Var."); // Repeat for other buttons
     
 
     lv_obj_t *btn_to_fade_rate = lv_btn_create(main_screen, NULL);
@@ -370,7 +472,7 @@ void create_main_screen()
     lv_obj_set_size(btn_to_palette, 100, 40);
 
     // Set the button position to next to the first button
-    lv_obj_align(btn_to_palette, btn_to_variability, LV_ALIGN_OUT_TOP_MID, 0, 0);
+    lv_obj_align(btn_to_palette, btn_to_fps_variability, LV_ALIGN_OUT_TOP_MID, 0, 0);
 
     // Create label for the button (optional)
     lv_obj_t *palette_btn_label = lv_label_create(btn_to_palette, NULL);
@@ -412,12 +514,18 @@ void create_color1_screen()
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
     // Create a color picker
-    lv_obj_t *cpicker;
-    cpicker = lv_cpicker_create(color1_screen, NULL);
-    lv_obj_set_size(cpicker, 200, 200);
-    lv_obj_align(cpicker, NULL, LV_ALIGN_CENTER, 0, 0);
+    color1_picker = lv_cpicker_create(color1_screen, NULL);
+    lv_obj_set_size(color1_picker, 200, 200);
+    lv_obj_align(color1_picker, NULL, LV_ALIGN_CENTER, 0, 10);
 
-    lv_obj_set_event_cb(cpicker, color1_cpicker_event_handler);
+    lv_obj_set_event_cb(color1_picker, color1_cpicker_event_handler);
+
+    lv_obj_t* screen_label = lv_label_create(color1_screen, NULL); // Create a label on the specified screen
+    lv_label_set_text(screen_label, "Color 1");            // Set the label text to the screen name
+
+    // Optional: Set the label style or align it as needed
+    lv_obj_align(screen_label, NULL, LV_ALIGN_IN_TOP_MID, 0, 5); // Align at the top, middle of the screen with a little offset
+
 }
 
 // Function to create a settings screen
@@ -441,12 +549,11 @@ void create_color2_screen()
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
     // Create a color picker
-    lv_obj_t *cpicker;
-    cpicker = lv_cpicker_create(color2_screen, NULL);
-    lv_obj_set_size(cpicker, 200, 200);
-    lv_obj_align(cpicker, NULL, LV_ALIGN_CENTER, 0, 0);
+    color2_picker = lv_cpicker_create(color2_screen, NULL);
+    lv_obj_set_size(color2_picker, 200, 200);
+    lv_obj_align(color2_picker, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_set_event_cb(cpicker, color2_cpicker_event_handler);
+    lv_obj_set_event_cb(color2_picker, color2_cpicker_event_handler);
 }
 
 // Function to create a settings screen
@@ -470,12 +577,11 @@ void create_color3_screen()
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
     // Create a color picker
-    lv_obj_t *cpicker;
-    cpicker = lv_cpicker_create(color3_screen, NULL);
-    lv_obj_set_size(cpicker, 200, 200);
-    lv_obj_align(cpicker, NULL, LV_ALIGN_CENTER, 0, 0);
+    color3_picker = lv_cpicker_create(color3_screen, NULL);
+    lv_obj_set_size(color3_picker, 200, 200);
+    lv_obj_align(color3_picker, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_set_event_cb(cpicker, color3_cpicker_event_handler);
+    lv_obj_set_event_cb(color3_picker, color3_cpicker_event_handler);
 }
 
 // Function to create a settings screen
@@ -499,12 +605,11 @@ void create_color4_screen()
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
     // Create a color picker
-    lv_obj_t *cpicker;
-    cpicker = lv_cpicker_create(color4_screen, NULL);
-    lv_obj_set_size(cpicker, 200, 200);
-    lv_obj_align(cpicker, NULL, LV_ALIGN_CENTER, 0, 0);
+    color4_picker = lv_cpicker_create(color4_screen, NULL);
+    lv_obj_set_size(color4_picker, 200, 200);
+    lv_obj_align(color4_picker, NULL, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_set_event_cb(cpicker, color4_cpicker_event_handler);
+    lv_obj_set_event_cb(color4_picker, color4_cpicker_event_handler);
 }
 
 void create_brightness_screen() {
@@ -525,7 +630,7 @@ void create_brightness_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* brightness_slider = lv_slider_create(brightness_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
+    brightness_slider = lv_slider_create(brightness_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
 
     // Position the slider (optional, depends on your layout)
     lv_obj_set_width(brightness_slider, 200); // Set the width of the slider
@@ -558,7 +663,7 @@ void create_fade_rate_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* fade_rate_slider = lv_slider_create(fade_rate_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
+    fade_rate_slider = lv_slider_create(fade_rate_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
 
     // Position the slider (optional, depends on your layout)
     lv_obj_set_width(fade_rate_slider, 200); // Set the width of the slider
@@ -573,11 +678,11 @@ void create_fade_rate_screen() {
     lv_obj_set_event_cb(fade_rate_slider, fade_rate_event_handler);
 }
 
-void create_speed_screen() {
-    speed_screen = lv_obj_create(NULL, NULL);
+void create_fps_screen() {
+    fps_screen = lv_obj_create(NULL, NULL);
 
     // Create a back button
-    lv_obj_t *back_btn = lv_btn_create(speed_screen, NULL);
+    lv_obj_t *back_btn = lv_btn_create(fps_screen, NULL);
 
     lv_obj_set_event_cb(back_btn, back_btn_event_handler);
 
@@ -591,26 +696,26 @@ void create_speed_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* speed_slider = lv_slider_create(speed_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
+    fps_slider = lv_slider_create(fps_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
 
     // Position the slider (optional, depends on your layout)
-    lv_obj_set_width(speed_slider, 200); // Set the width of the slider
-    lv_obj_align(speed_slider, NULL, LV_ALIGN_CENTER, 0, 0); // Center the slider
+    lv_obj_set_width(fps_slider, 200); // Set the width of the slider
+    lv_obj_align(fps_slider, NULL, LV_ALIGN_CENTER, 0, 0); // Center the slider
 
     // Set the range of the slider
-    lv_slider_set_range(speed_slider, 1, 100);
+    lv_slider_set_range(fps_slider, 1, 100);
 
     // Set the initial value
-    lv_slider_set_value(speed_slider, 50, LV_ANIM_OFF);
+    lv_slider_set_value(fps_slider, 50, LV_ANIM_OFF);
 
-    lv_obj_set_event_cb(speed_slider, speed_event_handler);
+    lv_obj_set_event_cb(fps_slider, fps_event_handler);
 }
 
-void create_variability_screen() {
-    variability_screen = lv_obj_create(NULL, NULL);
+void create_fps_variability_screen() {
+    fps_variability_screen = lv_obj_create(NULL, NULL);
 
     // Create a back button
-    lv_obj_t *back_btn = lv_btn_create(variability_screen, NULL);
+    lv_obj_t *back_btn = lv_btn_create(fps_variability_screen, NULL);
 
     lv_obj_set_event_cb(back_btn, back_btn_event_handler);
 
@@ -624,19 +729,19 @@ void create_variability_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* variability_slider = lv_slider_create(variability_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
+    fps_variability_slider = lv_slider_create(fps_variability_screen, NULL); // Create a slider and attach it to the parent (a screen or a container)
 
     // Position the slider (optional, depends on your layout)
-    lv_obj_set_width(variability_slider, 200); // Set the width of the slider
-    lv_obj_align(variability_slider, NULL, LV_ALIGN_CENTER, 0, 0); // Center the slider
+    lv_obj_set_width(fps_variability_slider, 200); // Set the width of the slider
+    lv_obj_align(fps_variability_slider, NULL, LV_ALIGN_CENTER, 0, 0); // Center the slider
 
     // Set the range of the slider
-    lv_slider_set_range(variability_slider, 0, 200);
+    lv_slider_set_range(fps_variability_slider, 0, 200);
 
     // Set the initial value
-    lv_slider_set_value(variability_slider, 50, LV_ANIM_OFF);
+    lv_slider_set_value(fps_variability_slider, 50, LV_ANIM_OFF);
 
-    lv_obj_set_event_cb(variability_slider, variability_event_handler);
+    lv_obj_set_event_cb(fps_variability_slider, fps_variability_event_handler);
 }
 
 void create_inc_gHue_screen() {
@@ -657,16 +762,12 @@ void create_inc_gHue_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* sw = lv_switch_create(inc_gHue_screen, NULL); // Create a switch and attach it to the parent (a screen or a container)
+    inc_gHue_switch = lv_switch_create(inc_gHue_screen, NULL); // Create a switch and attach it to the parent (a screen or a container)
 
     // Position the switch (optional, depends on your layout)
-    lv_obj_align(sw, NULL, LV_ALIGN_CENTER, 0, 0);
-
-    // You can set the state of the switch (on/off)
-    lv_switch_on(sw, LV_ANIM_OFF); // Turns the switch on without animation
-    // or lv_switch_off(sw, LV_ANIM_ON); to turn it off with animation
+    lv_obj_align(inc_gHue_switch, NULL, LV_ALIGN_CENTER, 0, 0);
     
-    lv_obj_set_event_cb(sw, inc_gHue_event_handler);
+    lv_obj_set_event_cb(inc_gHue_switch, inc_gHue_event_handler);
 }
 
 void create_palette_screen() {
@@ -687,7 +788,7 @@ void create_palette_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* palette_dropdown = lv_dropdown_create(palette_screen, NULL); // Create a dropdown and attach it to the parent (a screen or a container)
+    palette_dropdown = lv_dropdown_create(palette_screen, NULL); // Create a dropdown and attach it to the parent (a screen or a container)
 
     // Add options to the dropdown
     lv_dropdown_set_options(palette_dropdown, "RainbowColors\nRainbowStripeColors\nCloudColors\nLavaColors\nOceanColors\nForestColors\nPartyColors\nHeatColors");
@@ -719,10 +820,10 @@ void create_mode_screen() {
     lv_obj_t *label = lv_label_create(back_btn, NULL);
     lv_label_set_text(label, "Back"); // Repeat for other buttons
 
-    lv_obj_t* mode_dropdown = lv_dropdown_create(mode_screen, NULL); // Create a dropdown and attach it to the parent (a screen or a container)
+    mode_dropdown = lv_dropdown_create(mode_screen, NULL); // Create a dropdown and attach it to the parent (a screen or a container)
 
     // Add options to the dropdown
-    lv_dropdown_set_options(mode_dropdown, "Normal\nColor Waves\nTwinkling Stars\nCandy Cane\nRising Sparkles\nMeteor Rain");
+    lv_dropdown_set_options(mode_dropdown, "Normal\nColor Waves\nTwinkling Stars\nCandy Cane\nRising Sparkles\nTwinkle Fox\nFire");
 
     // Position the dropdown (optional, depends on your layout)
     lv_obj_align(mode_dropdown, NULL, LV_ALIGN_IN_TOP_MID, 0, 20);

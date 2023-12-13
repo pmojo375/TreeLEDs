@@ -11,76 +11,77 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
   <title>LED Christmas Tree Control</title>
   <style>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-            color: #333;
-        }
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          padding: 20px;
+          color: #333;
+      }
 
-        h1 {
-            color: #4CAF50;
-        }
+      h1 {
+          color: #4CAF50;
+      }
 
-        label {
-            display: block;
-            margin: 15px 0 5px;
-        }
+      label {
+          display: block;
+          margin: 15px 0 5px;
+      }
 
-        input[type=color], input[type=range] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
+      input[type=color], input[type=range] {
+          width: 100%;
+          height: 50px;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-sizing: border-box;
+      }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+      button {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 16px;
+      }
 
-        button:hover {
-            background-color: #45a049;
-        }
+      button:hover {
+          background-color: #45a049;
+      }
 
-        .control-group {
-            margin-bottom: 20px;
-        }
-    </style>
+      .control-group {
+          margin-bottom: 20px;
+      }
   </style>
 </head>
 
 <body>
+
   <h1>LED Christmas Tree Control</h1>
 
-  <label for="functionSelect">Select Function:</label>
-  <select id="functionSelect">
+  <label for="mode">Select Function:</label>
+  <select id="mode">
       <option value="0">Normal</option>
       <option value="1">Color Waves</option>
       <option value="2">Twinkling Stars</option>
       <option value="3">Candy Cane</option>
       <option value="4">Rising Sparkles</option>
-      <option value="5">Meteor Rain</option>
+      <option value="5">Twinkle Fox</option>
+      <option value="6">Fire</option>
   </select>
-  <button onclick="sendFunction()">Apply Function</button>
+  <button onclick="sendMode()">Apply Mode</button>
 
   <br><br>
 
-  <label for="hueChange">Enable gHue Increment:</label>
-  <input type="checkbox" id="hueChange" checked>
-  <button onclick="sendHueChange()">Apply</button>
+  <label for="incgHueState">Enable gHue Increment:</label>
+  <input type="checkbox" id="incgHueState" checked>
+  <button onclick="sendIncgHueState()">Apply</button>
 
   <br><br>
 
-  <label for="paletteSelect">Select Color Palette:</label>
-  <select id="paletteSelect">
+  <label for="palette">Select Color Palette:</label>
+  <select id="palette">
       <option value="0">RainbowColors</option>
       <option value="1">RainbowStripeColors</option>
       <option value="2">CloudColors</option>
@@ -94,29 +95,28 @@ const char index_html[] PROGMEM = R"rawliteral(
 
   <br><br>
 
-  <label for="baseColor">Base Color:</label>
-  <input type="color" id="baseColor" name="baseColor" onchange="changeBaseColor(this.value)">
+  <label for="Color1">Color 1:</label>
+  <input type="color" id="Color1" name="Color1" onchange="changeColor1(this.value)">
 
   <br><br>
 
-  <label for="secondaryColor1">Secondary Color 1:</label>
-  <input type="color" id="secondaryColor1" name="secondaryColor1" onchange="changeSecondaryColor1(this.value)">
+  <label for="Color2">Color 2:</label>
+  <input type="color" id="Color2" name="Color2" onchange="changeColor2(this.value)">
 
   <br><br>
 
-  <label for="secondaryColor2">Secondary Color 2:</label>
-  <input type="color" id="secondaryColor2" name="secondaryColor2" onchange="changeSecondaryColor2(this.value)">
+  <label for="Color3">Color 3:</label>
+  <input type="color" id="Color3" name="Color3" onchange="changeColor3(this.value)">
 
   <br><br>
 
-  <label for="secondaryColor2">Secondary Color 3:</label>
-  <input type="color" id="secondaryColor3" name="secondaryColor3" onchange="changeSecondaryColor3(this.value)">
+  <label for="Color2">Color 4:</label>
+  <input type="color" id="Color4" name="Color4" onchange="changeColor4(this.value)">
 
   <br><br>
 
-
-  <label for="flickerRate">Per Second Update Rate:</label>
-  <input type="range" id="flickerRate" name="flickerRate" min="1" max="100" onchange="changeFlickerRate(this.value)">
+  <label for="fps">FPS:</label>
+  <input type="range" id="fps" name="fps" min="1" max="66" onchange="changeFPS(this.value)">
 
   <br><br>
 
@@ -125,189 +125,135 @@ const char index_html[] PROGMEM = R"rawliteral(
 
   <br><br>
 
-  <label for="fade_amount">Fade Amount:</label>
-  <input type="range" id="fade_amount" name="fade_amount" min="0" max="255" onchange="changeFadeAmount(this.value)">
+  <label for="fadeAmount">Fade Amount:</label>
+  <input type="range" id="fadeAmount" name="fadeAmount" min="0" max="255" onchange="changeFadeAmount(this.value)">
   
   <br><br>
 
-  <label for="variability">Speed Variability:</label>
-  <input type="range" id="variability" name="variability" min="0" max="200" onchange="changeVariability(this.value)">
+  <label for="fps_variability">FPS Variability:</label>
+  <input type="range" id="fps_variability" name="fps_variability" min="0" max="66" onchange="changeFPS_Variability(this.value)">
 
   <script>
-    // JavaScript functions to handle changes and send requests to ESP32
-
-    function sendFunction() {
-
-      var functionValue = document.getElementById("functionSelect").value;
-
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log('LED function changed to: ' + functionValue);
-        }
-      };
-      var url = "http://192.168.4.1/setLEDFunction";
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("function=" + functionValue);
-    }
-
-    function sendHueChange() {
-      var toggle = document.getElementById("hueChange").checked;
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log('gHue incrementation toggled: ' + toggle);
+    var socket;
+    
+    function initWebSocket() {
+        socket = new WebSocket('ws://' + window.location.hostname + '/ws');
+        socket.onopen = function(event) {
+            console.log('WebSocket connected');
+        };
+        socket.onclose = function(event) {
+            console.log('WebSocket disconnected');
+            setTimeout(initWebSocket, 2000);
+        };
+        socket.onmessage = function(event) {
+          console.log("Received message:", event.data);
+          var message = JSON.parse(event.data);
+          console.log("Parsed message:", message);
+          switch(message.type) {
+              case 'Mode':
+                  mode = message.value;
+                  document.getElementById("mode").value = mode;
+                  break;
+              case 'Palette':
+                  palette = message.value;
+                  document.getElementById("palette").value = palette;
+                  break;
+              case 'Increment gHue':
+                  gHueState = message.value;
+                  if (gHueState == 1) {
+                    document.getElementById("incgHueState").checked = true;
+                  } else {
+                    document.getElementById("incgHueState").checked = false;
+                  }
+                  break;
+              case 'Color 1':
+                  color1 = message.value;
+                  document.getElementById("Color1").value = color1;
+                  break;
+              case 'Color 2':
+                  color2 = message.value;
+                  document.getElementById("Color2").value = color2;
+                  break; 
+              case 'Color 3':
+                  color3 = message.value;
+                  document.getElementById("Color3").value = color3;
+                  break; 
+              case 'Color 4':
+                  color4 = message.value;
+                  document.getElementById("Color4").value = color4;
+                  break; 
+              case 'FPS':
+                  fps = message.value;
+                  document.getElementById("fps").value = fps;
+                  break;
+              case 'Fade Amount':
+                  fadeAmount = message.value;
+                  document.getElementById("fadeAmount").value = fadeAmount;
+                  break;
+              case 'Brightness':
+                  brightness = message.value;
+                  document.getElementById("brightness").value = brightness;
+                  break;
+              case 'FPS Variability':
+                  fps_variability = message.value;
+                  document.getElementById("fps_variability").value = fps_variability;
+                  break;
           }
-      };
-      var url = "http://192.168.4.1/toggleHueIncrement";
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("hueIncrement=" + toggle);
+        };
     }
 
+    function sendMessage(type, value) {
+        var message = JSON.stringify({type: type, value: value});
+        socket.send(message);
+    }
+
+    window.onload = initWebSocket;
+
+    function sendMode() {
+      var mode = document.getElementById("mode").value;
+      sendMessage("Mode", mode);
+    }
+    
+    function sendIncgHueState() {
+      var incgHueState = document.getElementById("incgHueState").checked;
+      sendMessage("Increment gHue", incgHueState);
+    }
+    
     function sendPalette() {
-      var paletteValue = document.getElementById("paletteSelect").value;
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log('Color palette changed to: ' + paletteValue);
-          }
-      };
-      var url = "http://192.168.4.1/setColorPalette";
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("palette=" + paletteValue);
+      var palette = document.getElementById("palette").value;
+      sendMessage("Palette", palette);
     }
 
-
-    function changeBaseColor(color) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Base color changed to: ' + color);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setBaseColor";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("color=" + color);
+    function changeColor1(value) {
+        sendMessage("Color 1", value);
     }
 
-
-    function changeSecondaryColor1(color) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Secondary color 1 changed to: ' + color);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setSecondaryColor1";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("color=" + color);
+    function changeColor2(value) {
+        sendMessage("Color 2", value);
     }
 
-    function changeSecondaryColor2(color) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Secondary color 2 changed to: ' + color);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setSecondaryColor2";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("color=" + color);
+    function changeColor3(value) {
+        sendMessage("Color 3", value);
     }
 
-    function changeSecondaryColor3(color) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Secondary color 3 changed to: ' + color);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setSecondaryColor3";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("color=" + color);
+    function changeColor4(value) {
+        sendMessage("Color 4", value);
     }
 
-    function changeFlickerRate(rate) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Rate changed to: ' + rate);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setRate";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("rate=" + rate);
+    function changeFPS(value) {
+        sendMessage("FPS", value);
     }
 
-    function changeBrightness(brightness) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Rate changed to: ' + rate);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setBrightness";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("brightness=" + brightness);
+    function changeBrightness(value) {
+        sendMessage("Brightness", value);
     }
 
-    function changeFadeAmount(fade_amount) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Fade amount changed to: ' + fade_amount);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setFadeAmount";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("fade_amount=" + fade_amount);
+    function changeFadeAmount(value) {
+        sendMessage("Fade Amount", value);
     }
 
-    function changeVariability(variability) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log('Speed variability changed to: ' + variability);
-        }
-      };
-
-      // Specify your ESP32 endpoint here
-      var url = "http://192.168.4.1/setVariability";
-
-      xhttp.open("POST", url, true);
-      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhttp.send("variability=" + variability);
+    function changeFPS_Variability(value) {
+        sendMessage("FPS Variability", value);
     }
   </script>
 </body>

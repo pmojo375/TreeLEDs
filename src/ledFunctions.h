@@ -7,10 +7,36 @@
 #define DATA_PIN 25
 #define LED_TYPE WS2811
 #define COLOR_ORDER RGB
+#define TWINKLE_SPEED 4
+#define TWINKLE_DENSITY 5
+#define SECONDS_PER_PALETTE  30
+#define AUTO_SELECT_BACKGROUND_COLOR 0
+#define COOL_LIKE_INCANDESCENT 1
+#define COOLING  55
+#define SPARKING 120
 
-extern CRGB leds[NUM_LEDS];
+//extern CRGB leds[NUM_LEDS];
+extern CRGBArray<NUM_LEDS> leds;
+extern CRGBPalette16 gCurrentPalette;
+extern CRGBPalette16 gTargetPalette;
 
-void setPallette(int i);
+void Fire2012WithPalette();
+
+void drawTwinkles( CRGBSet& L);
+
+CRGB computeOneTwinkle( uint32_t ms, uint8_t salt);
+
+uint8_t attackDecayWave8( uint8_t i);
+
+void coolLikeIncandescent( CRGB& c, uint8_t phase);
+
+void chooseNextColorPalette( CRGBPalette16& pal);
+
+void setPalette(int i);
+
+String CRGBToHex(const CRGB& color);
+
+int getPalette();
 
 void colorWaves(bool increment_gHue, uint8_t brightness);
 
